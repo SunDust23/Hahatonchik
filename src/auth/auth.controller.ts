@@ -1,11 +1,14 @@
-import { Controller, Request, Post, UseGuards, Body, Get, Res, Query, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Controller, Post, UseGuards, Body, Get, Res, Query, HttpException, HttpStatus, Inject, Req, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RefreshJwtGuard } from './guards/refresh-jwt-auth.guard';
 import { AuthGuard } from './guards/auth.guard';
+//import { AuthGuard } from '@nestjs/passport';
 import CreateUserDto from 'src/user/dto/create-user.dto';
-import { Response } from 'express';
+import {  Response } from 'express';
+import { apiPort, portalUrl } from 'src/config';
+import { VkStrategy } from './strategies/vk.strategy';
 
 
 @ApiTags('Авторизация')
@@ -75,7 +78,5 @@ export class AuthController {
 
     return res.send(result.message);
   }
-
-
 
 }

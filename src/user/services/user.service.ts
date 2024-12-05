@@ -101,7 +101,9 @@ export class UserService {
     });
   }
 
-
- 
+  async findOneByVkId(vk_id): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { vk_id }, include: { model: Role } });
+    return user;
+  }
   
 }

@@ -8,10 +8,12 @@ import { usersProvider } from 'src/user/providers/user.providers';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { RefreshJwtStrategy } from './strategies/refreshToken.strategy';
 import { jwtSecret } from '../config';
+import { VkStrategy } from './strategies/vk.strategy';
+import { VKAuthController } from './vkauth.controller';
 
 @Module({
-  providers: [AuthService, LocalStrategy, UserService, JwtStrategy, RefreshJwtStrategy, ...usersProvider],
-  controllers: [AuthController],
+  providers: [AuthService, VKAuthController, LocalStrategy, UserService, JwtStrategy, VkStrategy, RefreshJwtStrategy, ...usersProvider],
+  controllers: [AuthController, VKAuthController],
   imports: [
     JwtModule.register({
       secret: `${jwtSecret}`,

@@ -40,6 +40,7 @@ export class User extends Model {
   @Column
   password: string;
 
-  
+  @Column({ type: DataType.STRING, allowNull: true })
+  vk_id: string; // VK ID
 }
 

@@ -11,5 +11,6 @@ export default class CreateUserDto {
   email: string;
   @ApiProperty()
   password: string;
-
+  @ApiPropertyOptional()
+  vk_id?:string;
 }

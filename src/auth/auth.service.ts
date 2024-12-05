@@ -102,4 +102,19 @@ export class AuthService {
     return { message: page, user: newUser };
   }
 
+
+  async validateVkUser(vkUser: any): Promise<any> {
+    const user = await this.usersService.findOneByVkId(vkUser.vkId);
+    if (user) {
+      return user;
+    }
+    // Если пользователь не найден, создать его
+    return this.usersService.create({
+      vk_id: vkUser.vkId,
+      first_name: vkUser.firstName,
+      last_name: vkUser.lastName,
+      email: vkUser.email,
+      password: null
+    });
+  }
 }
