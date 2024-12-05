@@ -1,0 +1,36 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { RoleService } from '../services/role.service';
+import CreateRoleDto from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
+import { ApiTags } from '@nestjs/swagger'
+
+@ApiTags('Роли')
+@Controller()
+export class RoleController {
+  constructor(private readonly roleService: RoleService) { }
+
+  @Post('new')
+  postNewRole(@Body() createRoleDto: CreateRoleDto) {
+    return this.roleService.create(createRoleDto);
+  }
+
+  @Get('all')
+  findAll() {
+    return this.roleService.findAll();
+  }
+
+   @Get('one/:id')
+  findOne(@Param('id') id: string) {
+    return this.roleService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
+    return this.roleService.update(+id, updateRoleDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.roleService.delete(+id);
+  }
+}
