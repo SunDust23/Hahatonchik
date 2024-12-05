@@ -5,18 +5,14 @@ import { portalUrl } from 'src/config';
 export function getConfirmTemplate(confirmationLink: string): string {
     console.log(confirmationLink)
   const templatePath = path.join(__dirname, './../../../public/confirm.html');
-  console.log(templatePath)
 
   const template = fs.readFileSync(templatePath, 'utf-8');
-  console.log(template)
-
 
   // Заменяем динамические данные
   return template
     .replace('{{confirmation_link}}', confirmationLink)
     .replace('{{year}}', new Date().getFullYear().toString());
 }
-// D:\NodeJs\Oauth\src\helpers\email-confirm\templates\confirm.html
 
 
 export function getSuccessConfirmPage(): string {

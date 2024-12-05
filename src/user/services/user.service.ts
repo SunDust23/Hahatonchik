@@ -85,23 +85,34 @@ export class UserService {
   }
 
 
-  async saveUserFilter(userId: number, name: string, filters: FilterDto): Promise<SavedFilter> {
+  async saveUserFilter(userId: number, name: string, service_name: string | null, filters: FilterDto): Promise<SavedFilter> {
     const savedFilter = await this.savedFilterRepository.create({
       user_id: userId,
       name,
+      service_name,
       filters: JSON.stringify(filters),
     });
   
     return savedFilter;
   }
 
-  async getUserFilters(userId: number): Promise<SavedFilter[]> {
-    return await this.savedFilterRepository.findAll({
-      where: { user_id: userId },
+  // Получение фильтров пользователя для конкретного сервиса (или всех, если service_name === null)
+  async getUserFilters(userId: number, serviceName: string | null): Promise<SavedFilter[]> {
+    return this.savedFilterRepository.findAll({
+      where: {
+        user_id: userId,
+        service_name: serviceName !== null ? serviceName : { [Op.is]: null },
+      },
     });
   }
 
-
- 
+   // Удаление фильтра по ID
+   async deleteFilter(filterId: number): Promise<void> {
+    const filter = await this.savedFilterRepository.findByPk(filterId);
+    if (!filter) {
+      throw new Error(`Filter with ID ${filterId} not found`);
+    }
+    await filter.destroy();
+  }
   
 }

@@ -2,11 +2,8 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch,
 import CreateUserDto from '../dto/create-user.dto';
 import { UserService } from '../services/user.service';
 import UpdateUserDto from '../dto/update-user.dto';
-import { createConfirmationUser, checkConfirm } from '../../helpers/email-confirm';
 import DefineUserRoleDto from '../dto/define-user-role.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { RoleService } from 'src/role/services/role.service';
-
 import { UseModel } from 'src/common/decorators/use-model.decorator';
 import { User } from '../entities/user.entity';
 import { FindInterceptor } from 'src/common/filters/find.interceptor';
@@ -18,8 +15,7 @@ import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 @Controller()
 export class UserController {
   constructor(
-    private userService: UserService,
-    private roleService: RoleService
+    private userService: UserService
   ) { }
 
 
@@ -43,8 +39,6 @@ export class UserController {
     return await this.userService.create(createUser);
   }
 
-
-
   @ApiOperation({ summary: 'Назначить роль пользователю' })
   @ApiResponse({ status: 200, description: 'Роль назначена' })
   @ApiBody({ type: DefineUserRoleDto })
@@ -53,7 +47,6 @@ export class UserController {
     const result = await this.userService.defineUserRole(defineUserRoleDto);
     return result;
   }
-
 
   @ApiOperation({ summary: 'Получить данные пользователя по ID' })
   @ApiResponse({ status: 200, description: 'Данные пользователя найдены' })
@@ -71,7 +64,6 @@ export class UserController {
     const users = await this.userService.findAll();
     return users;
   }
-
 
   @ApiOperation({ summary: 'Фильтровать пользователей' })
   @ApiResponse({ status: 200, description: 'Список отфильтрованных пользователей успешно возвращён' })
@@ -92,17 +84,6 @@ export class UserController {
     return users;
   }
 
-  // DEPRECATED LOGIN MOVED TO AUTH
-  // @Post('login')
-  // async login(@Body() loginUser: LoginUserDto) {
-  //   let foundUser = await this.userService.findOneByEmail(loginUser.email);
-
-  //   if (!foundUser)
-  //     throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-
-  //   if (hash(loginUser.password) == foundUser.password)
-  //     return foundUser;
-  // }
   @ApiOperation({ summary: 'Обновить данные пользователя' })
   @ApiResponse({ status: 200, description: 'Пользователь успешно обновлен' })
   @ApiResponse({ status: 404, description: 'Пользователь не найден' })
@@ -122,8 +103,6 @@ export class UserController {
     return  this.userService.delete(+id);
   }
 
-
-
   @ApiOperation({ summary: 'Сохранить фильтр пользователя' })
   @ApiResponse({ status: 201, description: 'Фильтр сохранен' })
   @ApiBearerAuth()
@@ -132,19 +111,38 @@ export class UserController {
   async saveUserFilter(
     @GetCurrentUser() user: any,
     @Body('name') name: string,
+    @Body('serviceName') serviceName: string,
     @Body('filters') FilterDto: any,
   ): Promise<SavedFilter> {
-    return await this.userService.saveUserFilter(user.id, name, FilterDto);
+    return await this.userService.saveUserFilter(user.id, name, serviceName, FilterDto);
   }
 
   @ApiOperation({ summary: 'Получить фильтры текущего пользователя' })
   @ApiResponse({ status: 200, description: 'Фильтры пользователя' })
   @ApiBearerAuth()
+  @ApiQuery({
+    name: 'service_name',
+    description: 'Название сервиса (или null, если фильтры не связаны с сервисом)',
+    required: false,
+    type: String,
+    example: 'orders',
+  })
   @Get('myfilters')
   @UseGuards(JwtGuard)
-  async getUserFilters(@GetCurrentUser() user: any): Promise<SavedFilter[]> {
-    return await this.userService.getUserFilters(user.id);
+  async getUserFilters(@GetCurrentUser() user: any,  @Query('service_name') serviceName: string | null): Promise<SavedFilter[]> {
+    return await this.userService.getUserFilters(user.id, serviceName);
   }
 
-
+  @ApiOperation({ summary: 'Удалить фильтр по ID' })
+  @ApiResponse({ status: 200, description: 'Фильтр удален' })
+  @ApiResponse({ status: 404, description: 'Фильтр не найден' })
+  @Delete(':filterId')
+  async deleteFilter(@Param('filterId') filterId: number): Promise<{ message: string }> {
+    try {
+      await this.userService.deleteFilter(filterId);
+      return { message: 'Фильтр успешно удален' };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
 }

@@ -33,7 +33,7 @@ export class RoleService {
 
   async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role | [affectedRows: number]> {
     const role = await this.rolesRepository.update(updateRoleDto, {where: {id}});
-    return role;
+    return await this.rolesRepository.findByPk(id);;
   }
 
   async delete(id: number): Promise<Role | number> {

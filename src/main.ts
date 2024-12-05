@@ -17,6 +17,7 @@ async function bootstrap() {
     .setTitle('Hahaton')
     .setDescription('Команда СТАС')
     .setVersion('1.0')
+    .addBearerAuth() // Добавляем поддержку Bearer токенов
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

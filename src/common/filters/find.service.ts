@@ -3,6 +3,7 @@ import { Model, ModelCtor } from 'sequelize-typescript';
 import { Includeable, Op } from 'sequelize';
 import * as _ from 'lodash';
 import { FilterFieldsDto, IncludeCriteriaDto } from './filter.dto';
+import { FilterOperator } from '../enums/filter-operator.enum';
 
 @Injectable()
 export class FindService {
@@ -39,32 +40,32 @@ export class FindService {
     _.forOwn(fields, (criteria, field) => {
       const { operator, value, range } = criteria;
       switch (operator) {
-        case 'eq': where[field] = value; break;
-        case 'neq': where[field] = { [Op.ne]: value }; break;
-        case 'gte': where[field] = { [Op.gte]: value }; break;
-        case 'lte': where[field] = { [Op.lte]: value }; break;
-        case 'gt': where[field] = { [Op.gt]: value }; break;
-        case 'lt': where[field] = { [Op.lt]: value }; break;
-        case 'cicontains': where[field] = { [Op.iLike]: `%${value}%` }; break;
-        case 'contains': where[field] = { [Op.like]: `%${value}%` }; break;
-        case 'notContains': where[field] = { [Op.notLike]: `%${value}%` }; break;
-        case 'isEmpty': where[field] = { [Op.or]: [{ [Op.eq]: '' }, { [Op.is]: null }] }; break;
-        case 'isNotEmpty': where[field] = { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] }; break;
-        case 'in': where[field] = { [Op.in]: Array.isArray(value) ? value : [value] }; break;
-        case 'notIn': where[field] = { [Op.notIn]: Array.isArray(value) ? value : [value] }; break;
-        case 'between':
+        case FilterOperator.EQ: where[field] = value; break;
+        case FilterOperator.NEQ: where[field] = { [Op.ne]: value }; break;
+        case FilterOperator.GTE: where[field] = { [Op.gte]: value }; break;
+        case FilterOperator.LTE: where[field] = { [Op.lte]: value }; break;
+        case FilterOperator.GT: where[field] = { [Op.gt]: value }; break;
+        case FilterOperator.LT: where[field] = { [Op.lt]: value }; break;
+        case FilterOperator.CICONT: where[field] = { [Op.iLike]: `%${value}%` }; break;
+        case FilterOperator.CONTAINS: where[field] = { [Op.like]: `%${value}%` }; break;
+        case FilterOperator.NOT_CONTAINS: where[field] = { [Op.notLike]: `%${value}%` }; break;
+        case FilterOperator.IS_EMPTY: where[field] = { [Op.or]: [{ [Op.eq]: '' }, { [Op.is]: null }] }; break;
+        case FilterOperator.IS_NOT_EMPTY: where[field] = { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] }; break;
+        case FilterOperator.IN: where[field] = { [Op.in]: Array.isArray(value) ? value : [value] }; break;
+        case FilterOperator.NOT_IN: where[field] = { [Op.notIn]: Array.isArray(value) ? value : [value] }; break;
+        case FilterOperator.BETWEEN:
           if (Array.isArray(range) && range.length === 2) {
             where[field] = { [Op.between]: range };
           }
           break;
-        case 'containsAny':
+        case FilterOperator.CONTAINS_ANY:
           if (Array.isArray(value)) {
             where[field] = {
               [Op.or]: value.map(v => ({ [Op.iLike]: `%${v}%` }))
             };
           }
           break;
-        case 'notContainsAny':
+        case FilterOperator.NOT_CONTAINS_ANY:
           if (Array.isArray(value)) {
             where[field] = {
               [Op.and]: value.map(v => ({ [Op.notILike]: `%${v}%` }))

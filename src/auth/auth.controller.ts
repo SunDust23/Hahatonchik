@@ -76,6 +76,4 @@ export class AuthController {
     return res.send(result.message);
   }
 
-
-
 }
